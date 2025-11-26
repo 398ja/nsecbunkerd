@@ -8,7 +8,7 @@ describe('ping', () => {
         resetMocks();
     });
 
-    it('should respond with ok', async () => {
+    it('should respond with pong', async () => {
         const admin = createMockAdmin();
         const req = createMockRequest([]);
 
@@ -18,7 +18,7 @@ describe('ping', () => {
         expect(admin.rpc.sendResponse).toHaveBeenCalledWith(
             req.id,
             req.pubkey,
-            'ok',
+            'pong',
             expect.anything()
         );
     });
