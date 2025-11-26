@@ -35,10 +35,20 @@ export type KeyUser = {
 
 function getKeys(config: DaemonConfig) {
     return async (): Promise<Key[]> => {
-        let lockedKeyNames = Object.keys(config.allKeys);
+        // Get soft-deleted key names from database to exclude them
+        const deletedKeys = await prisma.key.findMany({
+            where: { deletedAt: { not: null } },
+            select: { keyName: true },
+        });
+        const deletedKeyNames = new Set(deletedKeys.map(k => k.keyName));
+
+        let lockedKeyNames = Object.keys(config.allKeys).filter(name => !deletedKeyNames.has(name));
         const keys: Key[] = [];
 
         for (const [name, nsec] of Object.entries(config.keys)) {
+            // Skip soft-deleted keys
+            if (deletedKeyNames.has(name)) continue;
+
             const decoded = nip19.decode(nsec) as unknown as { type: 'nsec', data: Uint8Array };
             const hexpk = bytesToHex(decoded.data);
             const user = await new NDKPrivateKeySigner(hexpk).user();
