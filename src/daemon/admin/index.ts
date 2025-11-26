@@ -238,6 +238,7 @@ class AdminInterface {
                 redeemed_at: t.redeemedAt,
                 redeemed_by: t.KeyUser?.description,
                 time_until_expiration: t.expiresAt ? (t.expiresAt.getTime() - Date.now()) / 1000 : null,
+                revoked: !!t.deletedAt, // Revoked if deletedAt is set
             };
         }));
 
