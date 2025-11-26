@@ -79,7 +79,8 @@ export function requestToSigningConditionQuery(method: IMethod, payload?: string
 
     switch (method) {
         case 'sign_event':
-            signingConditionQuery.kind = { in: [ payload?.kind?.toString(), 'all' ] };
+            const kind = typeof payload === 'object' && payload !== null ? (payload as NostrEvent).kind : undefined;
+            signingConditionQuery.kind = { in: [ kind?.toString(), 'all' ] };
             break;
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "nsecbunkerd",
-  "version": "0.10.6",
+  "version": "0.11.0",
   "description": "nsecbunker daemon",
   "main": "dist/index.js",
   "bin": {
@@ -27,7 +27,10 @@
     "start": "node ./scripts/start.js",
     "lfg": "node ./scripts/start.js start",
     "nsecbunkerd": "node dist/index.js",
-    "client": "node dist/client/client.js"
+    "client": "node dist/client/client.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "nostr"
@@ -68,6 +71,7 @@
     "prisma": "^5.4.1",
     "ts-node": "^10.9.1",
     "tsup": "^7.2.0",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.3",
+    "vitest": "^1.6.1"
   }
 }

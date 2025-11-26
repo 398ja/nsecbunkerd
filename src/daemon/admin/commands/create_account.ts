@@ -132,7 +132,7 @@ export default async function createAccount(admin: AdminInterface, req: NDKRpcRe
         username = payload[0];
         domain = payload[1];
         email = payload[2];
-        return createAccountReal(admin, req, username, domain, email);
+        return createAccountReal(admin, req, username!, domain!, email);
     }
 }
 
@@ -210,10 +210,10 @@ export async function createAccountReal(
         // access it without having to go through an approval flow
         await grantPermissions(req, keyName);
 
-        return admin.rpc.sendResponse(req.id, req.pubkey, generatedUser.pubkey, NDKKind.NostrConnectAdmin);
+        return admin.rpc.sendResponse(req.id, req.pubkey, generatedUser.pubkey, NDKKind.NostrConnect);
     } catch (e: any) {
         console.trace('error', e);
-        return admin.rpc.sendResponse(req.id, req.pubkey, "error", NDKKind.NostrConnectAdmin,
+        return admin.rpc.sendResponse(req.id, req.pubkey, "error", NDKKind.NostrConnect,
             e.message);
     }
 }

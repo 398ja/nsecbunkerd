@@ -13,6 +13,17 @@ import createNewToken from './commands/create_new_token';
 import unlockKey from './commands/unlock_key';
 import renameKeyUser from './commands/rename_key_user.js';
 import revokeUser from './commands/revoke_user';
+import getKey from './commands/get_key';
+import deleteKey from './commands/delete_key';
+import rotateKey from './commands/rotate_key';
+import getPolicy from './commands/get_policy';
+import deletePolicy from './commands/delete_policy';
+import grantPermission from './commands/grant_permission';
+import revokePermission from './commands/revoke_permission';
+import getPermissions from './commands/get_permissions';
+import getToken from './commands/get_token';
+import revokeToken from './commands/revoke_token';
+import validateToken from './commands/validate_token';
 import fs from 'fs';
 import { validateRequestFromAdmin } from './validations/request-from-admin';
 import { dmUser } from '../../utils/dm-user';
@@ -116,7 +127,7 @@ class AdminInterface {
         this.ndk.connect(2500).then(() => {
             // connect for whitelisted admins
             this.rpc.subscribe({
-                "kinds": [NDKKind.NostrConnect, 24134 as number],
+                "kinds": [NDKKind.NostrConnect],
                 "#p": [this.signerUser!.pubkey]
             });
 
@@ -135,17 +146,28 @@ class AdminInterface {
 
             switch (req.method) {
                 case 'get_keys': await this.reqGetKeys(req); break;
+                case 'get_key': await getKey(this, req); break;
                 case 'get_key_users': await this.reqGetKeyUsers(req); break;
                 case 'rename_key_user': await renameKeyUser(this, req); break;
                 case 'get_key_tokens': await this.reqGetKeyTokens(req); break;
                 case 'revoke_user': await revokeUser(this, req); break;
                 case 'create_new_key': await createNewKey(this, req); break;
+                case 'delete_key': await deleteKey(this, req); break;
+                case 'rotate_key': await rotateKey(this, req); break;
                 case 'create_account': await createAccount(this, req); break;
                 case 'ping': await ping(this, req); break;
                 case 'unlock_key': await unlockKey(this, req); break;
                 case 'create_new_policy': await createNewPolicy(this, req); break;
                 case 'get_policies': await this.reqListPolicies(req); break;
+                case 'get_policy': await getPolicy(this, req); break;
+                case 'delete_policy': await deletePolicy(this, req); break;
+                case 'grant_permission': await grantPermission(this, req); break;
+                case 'revoke_permission': await revokePermission(this, req); break;
+                case 'get_permissions': await getPermissions(this, req); break;
                 case 'create_new_token': await createNewToken(this, req); break;
+                case 'get_token': await getToken(this, req); break;
+                case 'revoke_token': await revokeToken(this, req); break;
+                case 'validate_token': await validateToken(this, req); break;
                 default:
                     const originalKind = req.event.kind!;
                     console.log(`Unknown method ${req.method}`);
@@ -158,7 +180,7 @@ class AdminInterface {
             }
         } catch (err: any) {
             debug(`Error handling request ${req.method}: ${err?.message??err}`, req.params);
-            return this.rpc.sendResponse(req.id, req.pubkey, "error", NDKKind.NostrConnectAdmin, err?.message);
+            return this.rpc.sendResponse(req.id, req.pubkey, "error", NDKKind.NostrConnect, err?.message);
         }
     }
 
@@ -196,7 +218,7 @@ class AdminInterface {
         const key = keys.find((k) => k.name === keyName);
 
         if (!key || !key.npub) {
-            return this.rpc.sendResponse(req.id, req.pubkey, JSON.stringify([]), 24134);
+            return this.rpc.sendResponse(req.id, req.pubkey, JSON.stringify([]), NDKKind.NostrConnect);
         }
 
         const npub = key.npub;
@@ -218,7 +240,7 @@ class AdminInterface {
             };
         }));
 
-        return this.rpc.sendResponse(req.id, req.pubkey, result, 24134);
+        return this.rpc.sendResponse(req.id, req.pubkey, result, NDKKind.NostrConnect);
     }
 
     /**
@@ -250,7 +272,7 @@ class AdminInterface {
             };
         }));
 
-        return this.rpc.sendResponse(req.id, req.pubkey, result, 24134);
+        return this.rpc.sendResponse(req.id, req.pubkey, result, NDKKind.NostrConnect);
     }
 
     /**
@@ -262,7 +284,7 @@ class AdminInterface {
         const result = JSON.stringify(await this.getKeys());
         const pubkey = req.pubkey;
 
-        return this.rpc.sendResponse(req.id, pubkey, result, 24134); // 24134
+        return this.rpc.sendResponse(req.id, pubkey, result, NDKKind.NostrConnect);
     }
 
     /**
@@ -274,7 +296,7 @@ class AdminInterface {
         const result = JSON.stringify(await this.getKeyUsers(req));
         const pubkey = req.pubkey;
 
-        return this.rpc.sendResponse(req.id, pubkey, result, 24134); // 24134
+        return this.rpc.sendResponse(req.id, pubkey, result, NDKKind.NostrConnect);
     }
 
     /**
@@ -340,7 +362,7 @@ class AdminInterface {
                     remoteUser.pubkey,
                     'acl',
                     [params],
-                    24134,
+                    NDKKind.NostrConnect,
                     (res: NDKRpcResponse) => {
                         this.requestPermissionResponse(
                             remotePubkey,

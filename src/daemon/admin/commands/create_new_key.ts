@@ -1,4 +1,4 @@
-import NDK, { NDKEvent, NDKPrivateKeySigner, NDKRpcRequest, type NostrEvent } from "@nostr-dev-kit/ndk";
+import NDK, { NDKEvent, NDKKind, NDKPrivateKeySigner, NDKRpcRequest, type NostrEvent } from "@nostr-dev-kit/ndk";
 import AdminInterface from "../index.js";
 import { saveEncrypted } from "../../../commands/add.js";
 import { nip19 } from 'nostr-tools';
@@ -39,5 +39,5 @@ export default async function createNewKey(admin: AdminInterface, req: NDKRpcReq
         npub: user.npub,
     });
 
-    return admin.rpc.sendResponse(req.id, req.pubkey, result, 24134);
+    return admin.rpc.sendResponse(req.id, req.pubkey, result, NDKKind.NostrConnect);
 }

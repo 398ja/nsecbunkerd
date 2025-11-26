@@ -39,7 +39,8 @@ function getKeys(config: DaemonConfig) {
         const keys: Key[] = [];
 
         for (const [name, nsec] of Object.entries(config.keys)) {
-            const hexpk = bytesToHex(nip19.decode(nsec).data as Uint8Array);
+            const decoded = nip19.decode(nsec) as unknown as { type: 'nsec', data: Uint8Array };
+            const hexpk = bytesToHex(decoded.data);
             const user = await new NDKPrivateKeySigner(hexpk).user();
             const key = {
                 name,
@@ -165,7 +166,7 @@ class Daemon {
             explicitRelayUrls: config.nostr.relays,
         });
         this.ndk.pool.on('relay:connect', (r) => console.log(`✅ Connected to ${r.url}`) );
-        this.ndk.pool.on('relay:notice', (n, r) => { console.log(`👀 Notice from ${r.url}`, n); });
+        (this.ndk.pool as any).on('relay:notice', (n: string, r: any) => { console.log(`👀 Notice from ${r.url}`, n); });
 
         this.ndk.pool.on('relay:disconnect', (r) => {
             console.log(`🚫 Disconnected from ${r.url}`);

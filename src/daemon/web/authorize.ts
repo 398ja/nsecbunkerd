@@ -17,7 +17,7 @@ async function validateAuthCookie(request) {
         return false;
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
         where: { pubkey: jwt }
     });
 
@@ -230,7 +230,7 @@ export async function processRegistrationWebHandler(request, reply) {
 
         await allowAllRequestsFromKey(
             record.remotePubkey,
-            record.keyName,
+            record.keyName!,
             record.method,
             undefined,
             undefined,
