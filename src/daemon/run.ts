@@ -94,6 +94,7 @@ function getKeyUsers(config: IConfig) {
                 createdAt: user.createdAt,
                 lastUsedAt: user.lastUsedAt || undefined,
                 revokedAt: user.revokedAt || undefined,
+                active: !user.revokedAt, // Active if not revoked
                 signingConditions: user.signingConditions, // Include signing conditions
             };
 
