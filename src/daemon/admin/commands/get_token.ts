@@ -44,6 +44,7 @@ export default async function getToken(admin: AdminInterface, req: NDKRpcRequest
         deleted_at: token.deletedAt,
         redeemed_at: token.redeemedAt,
         redeemed_by: token.KeyUser?.description,
+        revoked: !!token.deletedAt, // Revoked if deletedAt is set
     });
 
     return admin.rpc.sendResponse(req.id, req.pubkey, result, NDKKind.NostrConnect);
