@@ -15,7 +15,7 @@ export default async function createNewToken(admin: AdminInterface, req: NDKRpcR
 
     const token = [...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
     const data: any = {
-        keyName, clientName, policyId,
+        keyName, clientName, policyId: parseInt(policyId),
         createdBy: req.pubkey,
         token
     };
