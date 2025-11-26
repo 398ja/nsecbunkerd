@@ -1,5 +1,6 @@
 import NDK, { NDKPrivateKeySigner, Nip46PermitCallback, Nip46PermitCallbackParams } from '@nostr-dev-kit/ndk';
 import { nip19 } from 'nostr-tools';
+import { bytesToHex, hexToBytes } from '../utils/hex.js';
 import { Backend } from './backend/index.js';
 import {
     IMethod,
@@ -38,7 +39,7 @@ function getKeys(config: DaemonConfig) {
         const keys: Key[] = [];
 
         for (const [name, nsec] of Object.entries(config.keys)) {
-            const hexpk = nip19.decode(nsec).data as string;
+            const hexpk = bytesToHex(nip19.decode(nsec).data as Uint8Array);
             const user = await new NDKPrivateKeySigner(hexpk).user();
             const key = {
                 name,
@@ -206,7 +207,7 @@ class Daemon {
                 continue;
             }
 
-            const nsec = nip19.nsecEncode(settings.key);
+            const nsec = nip19.nsecEncode(hexToBytes(settings.key));
             this.loadNsec(keyName, nsec);
         }
     }

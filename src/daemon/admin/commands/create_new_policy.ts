@@ -19,9 +19,9 @@ export default async function createNewPolicy(admin: AdminInterface, req: NDKRpc
     for (const rule of policy.rules) {
         await prisma.policyRule.create({
             data: {
-                policyId: policyRecord.id,
-                kind: rule.kind.toString(),
-                method: rule.method,
+                Policy: { connect: { id: policyRecord.id } },
+                kind: rule.kind != null ? rule.kind.toString() : null,
+                method: rule.method ?? "sign_event",
                 maxUsageCount: rule.use_count,
                 currentUsageCount: 0,
             }

@@ -3,6 +3,7 @@ import AdminInterface from "../index.js";
 import { saveEncrypted } from "../../../commands/add.js";
 import { nip19 } from 'nostr-tools';
 import { setupSkeletonProfile } from "../../lib/profile.js";
+import { bytesToHex, hexToBytes } from "../../../utils/hex.js";
 
 export default async function createNewKey(admin: AdminInterface, req: NDKRpcRequest) {
     const [ keyName, passphrase, _nsec ] = req.params as [ string, string, string? ];
@@ -13,7 +14,7 @@ export default async function createNewKey(admin: AdminInterface, req: NDKRpcReq
     let key;
 
     if (_nsec) {
-        key = new NDKPrivateKeySigner(nip19.decode(_nsec).data as string);
+        key = new NDKPrivateKeySigner(bytesToHex(nip19.decode(_nsec).data as Uint8Array));
     } else {
         key = NDKPrivateKeySigner.generate();
 
@@ -23,7 +24,7 @@ export default async function createNewKey(admin: AdminInterface, req: NDKRpcReq
     }
 
     const user = await key.user();
-    const nsec = nip19.nsecEncode(key.privateKey!);
+    const nsec = nip19.nsecEncode(hexToBytes(key.privateKey!));
 
     await saveEncrypted(
         admin.configFile,

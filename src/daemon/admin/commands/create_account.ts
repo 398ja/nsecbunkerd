@@ -1,6 +1,7 @@
 import { Hexpubkey, NDKKind, NDKPrivateKeySigner, NDKRpcRequest, NDKUserProfile } from "@nostr-dev-kit/ndk";
 import AdminInterface from "..";
 import { nip19 } from 'nostr-tools';
+import { hexToBytes } from "../../../utils/hex.js";
 import { setupSkeletonProfile } from "../../lib/profile";
 import { IConfig, getCurrentConfig, saveCurrentConfig } from "../../../config";
 import { readFileSync, writeFileSync } from "fs";
@@ -195,7 +196,7 @@ export async function createAccountReal(
         }
 
         const keyName = nip05;
-        const nsec = nip19.nsecEncode(key.privateKey!);
+        const nsec = nip19.nsecEncode(hexToBytes(key.privateKey!));
         currentConfig.keys[keyName] = { key: key.privateKey };
 
         saveCurrentConfig(admin.configFile, currentConfig);
