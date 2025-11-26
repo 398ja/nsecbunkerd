@@ -227,6 +227,7 @@ class AdminInterface {
             return {
                 id: t.id,
                 key_name: t.keyName,
+                key_npub: npub,
                 client_name: t.clientName,
                 token: [ npub, t.token ].join('#'),
                 policy_id: t.policyId,
