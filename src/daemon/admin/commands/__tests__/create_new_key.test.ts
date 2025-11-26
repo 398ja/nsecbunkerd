@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createMockAdmin, createMockRequest, getResponseResult, resetMocks } from './test-utils';
+import { createMockAdmin, createMockRequest, getResponseResult, resetMocks, mockPrisma } from './test-utils';
 
 // Mock the saveEncrypted function
 vi.mock('../../../../commands/add.js', () => ({
@@ -9,6 +9,11 @@ vi.mock('../../../../commands/add.js', () => ({
 // Mock the setupSkeletonProfile function
 vi.mock('../../../lib/profile.js', () => ({
     setupSkeletonProfile: vi.fn(),
+}));
+
+// Mock the prisma module
+vi.mock('../../../../db.js', () => ({
+    default: mockPrisma,
 }));
 
 import createNewKey from '../create_new_key';
@@ -50,6 +55,19 @@ describe('create_new_key', () => {
             'my-key',
             expect.stringMatching(/^nsec1/)
         );
+
+        // Verify key was saved to database
+        expect(mockPrisma.key.upsert).toHaveBeenCalledWith({
+            where: { keyName: 'my-key' },
+            update: {
+                pubkey: expect.any(String),
+                deletedAt: null,
+            },
+            create: {
+                keyName: 'my-key',
+                pubkey: expect.any(String),
+            },
+        });
 
         // Verify response contains npub
         expect(admin.rpc.sendResponse).toHaveBeenCalledTimes(1);

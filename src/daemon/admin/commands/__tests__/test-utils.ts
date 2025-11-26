@@ -9,6 +9,7 @@ export const mockPrisma = {
         findMany: vi.fn(),
         create: vi.fn(),
         update: vi.fn(),
+        upsert: vi.fn(),
         delete: vi.fn(),
     },
     keyUser: {

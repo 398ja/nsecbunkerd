@@ -4,6 +4,7 @@ import { saveEncrypted } from "../../../commands/add.js";
 import { nip19 } from 'nostr-tools';
 import { setupSkeletonProfile } from "../../lib/profile.js";
 import { bytesToHex, hexToBytes } from "../../../utils/hex.js";
+import prisma from "../../../db.js";
 
 export default async function createNewKey(admin: AdminInterface, req: NDKRpcRequest) {
     const [ keyName, passphrase, _nsec ] = req.params as [ string, string, string? ];
@@ -34,6 +35,19 @@ export default async function createNewKey(admin: AdminInterface, req: NDKRpcReq
     );
 
     await admin.loadNsec(keyName, nsec);
+
+    // Also save to database so delete_key can find it
+    await prisma.key.upsert({
+        where: { keyName },
+        update: {
+            pubkey: user.pubkey,
+            deletedAt: null, // Ensure it's not marked as deleted
+        },
+        create: {
+            keyName,
+            pubkey: user.pubkey,
+        },
+    });
 
     const result = JSON.stringify({
         npub: user.npub,
