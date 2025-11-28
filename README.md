@@ -211,23 +211,23 @@ Only npubs listed in the `ADMIN_NPUBS` environment variable can access admin met
 
 ### Key Management
 
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `get_keys` | none | List all keys with their status (locked/unlocked) |
-| `get_key` | `keyName` | Get details about a specific key |
-| `create_new_key` | `keyName`, `passphrase`, `[nsec]` | Create a new key or import existing nsec |
-| `unlock_key` | `keyName`, `passphrase` | Unlock an encrypted key |
-| `delete_key` | `keyName` | Soft-delete a key and its tokens |
-| `rotate_key` | `oldKeyName`, `newKeyName`, `passphrase` | Create new key and migrate permissions |
+| Method | Parameters | Description | Since |
+|--------|------------|-------------|-------|
+| `get_keys` | none | List all keys with their status (locked/unlocked) | |
+| `get_key` | `keyName` | Get details about a specific key | v0.11.0 |
+| `create_new_key` | `keyName`, `passphrase`, `[nsec]` | Create a new key or import existing nsec | |
+| `unlock_key` | `keyName`, `passphrase` | Unlock an encrypted key | |
+| `delete_key` | `keyName` | Soft-delete a key and its tokens | v0.11.0 |
+| `rotate_key` | `oldKeyName`, `newKeyName`, `passphrase` | Create new key and migrate permissions | v0.11.0 |
 
 ### Policy Management
 
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `get_policies` | none | List all policies with their rules |
-| `get_policy` | `policyId` | Get details about a specific policy |
-| `create_new_policy` | `policyJson` | Create a new policy with rules |
-| `delete_policy` | `policyId` | Soft-delete a policy |
+| Method | Parameters | Description | Since |
+|--------|------------|-------------|-------|
+| `get_policies` | none | List all policies with their rules | |
+| `get_policy` | `policyId` | Get details about a specific policy | v0.11.0 |
+| `create_new_policy` | `policyJson` | Create a new policy with rules | |
+| `delete_policy` | `policyId` | Soft-delete a policy | v0.11.0 |
 
 **Policy JSON Format:**
 ```json
@@ -243,31 +243,31 @@ Only npubs listed in the `ADMIN_NPUBS` environment variable can access admin met
 
 ### Permission Management
 
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `get_key_users` | `keyName` | List all users with access to a key |
-| `grant_permission` | `keyName`, `userPubkey`, `policyId`, `[description]` | Grant user access to a key with a policy |
-| `revoke_permission` | `keyName`, `userPubkey` | Revoke user's access to a key |
-| `get_permissions` | `keyName`, `userPubkey` | Get user's permissions on a key |
-| `rename_key_user` | `userPubkey`, `description` | Update a user's description |
-| `revoke_user` | `keyUserId` | Revoke user by ID |
+| Method | Parameters | Description | Since |
+|--------|------------|-------------|-------|
+| `get_key_users` | `keyName` | List all users with access to a key | |
+| `grant_permission` | `keyName`, `userPubkey`, `policyId`, `[description]` | Grant user access to a key with a policy | v0.11.0 |
+| `revoke_permission` | `keyName`, `userPubkey` | Revoke user's access to a key | v0.11.0 |
+| `get_permissions` | `keyName`, `userPubkey` | Get user's permissions on a key | v0.11.0 |
+| `rename_key_user` | `userPubkey`, `description` | Update a user's description | |
+| `revoke_user` | `keyUserId` | Revoke user by ID | |
 
 ### Token Management
 
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `get_key_tokens` | `keyName` | List all tokens for a key |
-| `get_token` | `tokenId` | Get details about a specific token |
-| `create_new_token` | `keyName`, `clientName`, `policyId`, `[durationInHours]` | Create an access token |
-| `revoke_token` | `tokenId` | Revoke (soft-delete) a token |
-| `validate_token` | `tokenString` | Check if a token is valid |
+| Method | Parameters | Description | Since |
+|--------|------------|-------------|-------|
+| `get_key_tokens` | `keyName` | List all tokens for a key | |
+| `get_token` | `tokenId` | Get details about a specific token | v0.11.0 |
+| `create_new_token` | `keyName`, `clientName`, `policyId`, `[durationInHours]` | Create an access token | |
+| `revoke_token` | `tokenId` | Revoke (soft-delete) a token | v0.11.0 |
+| `validate_token` | `tokenString` | Check if a token is valid | v0.11.0 |
 
 ### Utility
 
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `ping` | none | Health check - returns "pong" |
-| `create_account` | `[username]`, `[domain]`, `[email]` | Create a new user account (OAuth flow) |
+| Method | Parameters | Description | Since |
+|--------|------------|-------------|-------|
+| `ping` | none | Health check - returns "pong" | |
+| `create_account` | `[username]`, `[domain]`, `[email]` | Create a new user account (OAuth flow) | |
 
 ## Response Format
 
@@ -283,6 +283,8 @@ All responses follow NIP-46 format:
 ## Development
 
 ### Running Tests
+
+Unit tests for all admin commands were added in v0.11.0 using Vitest.
 
 ```bash
 # Run all tests
