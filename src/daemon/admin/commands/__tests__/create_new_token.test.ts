@@ -57,7 +57,7 @@ describe('create_new_token', () => {
             data: {
                 keyName: 'my-key',
                 clientName: 'Test App',
-                policyId: '1',
+                policyId: 1,
                 createdBy: 'test-pubkey-hex',
                 token: expect.any(String),
             },
@@ -89,7 +89,7 @@ describe('create_new_token', () => {
             data: {
                 keyName: 'my-key',
                 clientName: 'Test App',
-                policyId: '1',
+                policyId: 1,
                 createdBy: 'test-pubkey-hex',
                 token: expect.any(String),
                 expiresAt: expect.any(Date),
