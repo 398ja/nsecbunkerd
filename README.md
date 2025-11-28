@@ -266,7 +266,7 @@ Only npubs listed in the `ADMIN_NPUBS` environment variable can access admin met
 
 | Method | Parameters | Description |
 |--------|------------|-------------|
-| `ping` | none | Health check - returns "ok" |
+| `ping` | none | Health check - returns "pong" |
 | `create_account` | `[username]`, `[domain]`, `[email]` | Create a new user account (OAuth flow) |
 
 ## Response Format
