@@ -1,6 +1,7 @@
 import { Hexpubkey, NDKKind, NDKPrivateKeySigner, NDKRpcRequest, NDKUserProfile } from "@nostr-dev-kit/ndk";
 import AdminInterface from "..";
 import { nip19 } from 'nostr-tools';
+import { hexToBytes } from "../../../utils/hex.js";
 import { setupSkeletonProfile } from "../../lib/profile";
 import { IConfig, getCurrentConfig, saveCurrentConfig } from "../../../config";
 import { readFileSync, writeFileSync } from "fs";
@@ -131,7 +132,7 @@ export default async function createAccount(admin: AdminInterface, req: NDKRpcRe
         username = payload[0];
         domain = payload[1];
         email = payload[2];
-        return createAccountReal(admin, req, username, domain, email);
+        return createAccountReal(admin, req, username!, domain!, email);
     }
 }
 
@@ -195,7 +196,7 @@ export async function createAccountReal(
         }
 
         const keyName = nip05;
-        const nsec = nip19.nsecEncode(key.privateKey!);
+        const nsec = nip19.nsecEncode(hexToBytes(key.privateKey!));
         currentConfig.keys[keyName] = { key: key.privateKey };
 
         saveCurrentConfig(admin.configFile, currentConfig);
@@ -209,10 +210,10 @@ export async function createAccountReal(
         // access it without having to go through an approval flow
         await grantPermissions(req, keyName);
 
-        return admin.rpc.sendResponse(req.id, req.pubkey, generatedUser.pubkey, NDKKind.NostrConnectAdmin);
+        return admin.rpc.sendResponse(req.id, req.pubkey, generatedUser.pubkey, NDKKind.NostrConnect);
     } catch (e: any) {
         console.trace('error', e);
-        return admin.rpc.sendResponse(req.id, req.pubkey, "error", NDKKind.NostrConnectAdmin,
+        return admin.rpc.sendResponse(req.id, req.pubkey, "error", NDKKind.NostrConnect,
             e.message);
     }
 }

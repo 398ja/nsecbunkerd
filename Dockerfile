@@ -14,7 +14,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Runtime stage
-FROM node:20.11-alpine as runtime
+FROM node:20.11-alpine AS runtime
 
 WORKDIR /app
 

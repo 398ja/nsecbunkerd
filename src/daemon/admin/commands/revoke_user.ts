@@ -1,4 +1,4 @@
-import { NDKRpcRequest } from "@nostr-dev-kit/ndk";
+import { NDKKind, NDKRpcRequest } from "@nostr-dev-kit/ndk";
 import AdminInterface from "../index.js";
 import prisma from "../../../db.js";
 
@@ -20,5 +20,5 @@ export default async function revokeUser(admin: AdminInterface, req: NDKRpcReque
     });
 
     const result = JSON.stringify(["ok"]);
-    return admin.rpc.sendResponse(req.id, req.pubkey, result, 24134);
+    return admin.rpc.sendResponse(req.id, req.pubkey, result, NDKKind.NostrConnect);
 }

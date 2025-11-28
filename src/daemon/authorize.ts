@@ -59,7 +59,7 @@ async function createRecord(
 ) {
     let params: string | undefined;
 
-    if (param?.rawEvent) {
+    if (param && typeof param !== 'string' && 'rawEvent' in param) {
         const e = param as NDKEvent;
         params = JSON.stringify(e.rawEvent());
     } else if (param) {
@@ -113,7 +113,7 @@ export function urlAuthFlow(
             clearInterval(checkingInterval);
 
             if (record.allowed === false) {
-                reject(record.payload);
+                reject(record.params);
             }
             console.log('resolve urlAuthFlow', !!record.params);
             resolve(record.params);

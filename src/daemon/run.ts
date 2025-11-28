@@ -1,5 +1,6 @@
 import NDK, { NDKPrivateKeySigner, Nip46PermitCallback, Nip46PermitCallbackParams } from '@nostr-dev-kit/ndk';
 import { nip19 } from 'nostr-tools';
+import { bytesToHex, hexToBytes } from '../utils/hex.js';
 import { Backend } from './backend/index.js';
 import {
     IMethod,
@@ -34,11 +35,22 @@ export type KeyUser = {
 
 function getKeys(config: DaemonConfig) {
     return async (): Promise<Key[]> => {
-        let lockedKeyNames = Object.keys(config.allKeys);
+        // Get soft-deleted key names from database to exclude them
+        const deletedKeys = await prisma.key.findMany({
+            where: { deletedAt: { not: null } },
+            select: { keyName: true },
+        });
+        const deletedKeyNames = new Set(deletedKeys.map(k => k.keyName));
+
+        let lockedKeyNames = Object.keys(config.allKeys).filter(name => !deletedKeyNames.has(name));
         const keys: Key[] = [];
 
         for (const [name, nsec] of Object.entries(config.keys)) {
-            const hexpk = nip19.decode(nsec).data as string;
+            // Skip soft-deleted keys
+            if (deletedKeyNames.has(name)) continue;
+
+            const decoded = nip19.decode(nsec) as unknown as { type: 'nsec', data: Uint8Array };
+            const hexpk = bytesToHex(decoded.data);
             const user = await new NDKPrivateKeySigner(hexpk).user();
             const key = {
                 name,
@@ -82,6 +94,7 @@ function getKeyUsers(config: IConfig) {
                 createdAt: user.createdAt,
                 lastUsedAt: user.lastUsedAt || undefined,
                 revokedAt: user.revokedAt || undefined,
+                active: !user.revokedAt, // Active if not revoked
                 signingConditions: user.signingConditions, // Include signing conditions
             };
 
@@ -164,7 +177,7 @@ class Daemon {
             explicitRelayUrls: config.nostr.relays,
         });
         this.ndk.pool.on('relay:connect', (r) => console.log(`✅ Connected to ${r.url}`) );
-        this.ndk.pool.on('relay:notice', (n, r) => { console.log(`👀 Notice from ${r.url}`, n); });
+        (this.ndk.pool as any).on('relay:notice', (n: string, r: any) => { console.log(`👀 Notice from ${r.url}`, n); });
 
         this.ndk.pool.on('relay:disconnect', (r) => {
             console.log(`🚫 Disconnected from ${r.url}`);
@@ -206,7 +219,7 @@ class Daemon {
                 continue;
             }
 
-            const nsec = nip19.nsecEncode(settings.key);
+            const nsec = nip19.nsecEncode(hexToBytes(settings.key));
             this.loadNsec(keyName, nsec);
         }
     }

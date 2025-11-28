@@ -1,4 +1,4 @@
-import { NDKRpcRequest } from "@nostr-dev-kit/ndk";
+import { NDKKind, NDKRpcRequest } from "@nostr-dev-kit/ndk";
 import AdminInterface from "../index.js";
 import prisma from "../../../db.js";
 
@@ -19,9 +19,9 @@ export default async function createNewPolicy(admin: AdminInterface, req: NDKRpc
     for (const rule of policy.rules) {
         await prisma.policyRule.create({
             data: {
-                policyId: policyRecord.id,
-                kind: rule.kind.toString(),
-                method: rule.method,
+                Policy: { connect: { id: policyRecord.id } },
+                kind: rule.kind != null ? rule.kind.toString() : null,
+                method: rule.method ?? "sign_event",
                 maxUsageCount: rule.use_count,
                 currentUsageCount: 0,
             }
@@ -29,5 +29,5 @@ export default async function createNewPolicy(admin: AdminInterface, req: NDKRpc
     }
 
     const result = JSON.stringify(["ok"]);
-    return admin.rpc.sendResponse(req.id, req.pubkey, result, 24134);
+    return admin.rpc.sendResponse(req.id, req.pubkey, result, NDKKind.NostrConnect);
 }

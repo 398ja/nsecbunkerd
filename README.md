@@ -177,6 +177,124 @@ When a bunker provides a wallet and zapping service (`wallet` and `nostdressUrl`
 }
 ```
 
+# Admin API
+
+nsecbunkerd exposes an admin API over Nostr (NIP-46) that allows authorized administrators to manage keys, policies, permissions, and tokens remotely.
+
+## ⚠️ Breaking Change: NIP-46 Compliance (v0.11.0)
+
+**Previous versions** of nsecbunkerd used event kind `24134` for admin API responses. This was a custom extension that was never part of the official NIP-46 specification.
+
+**Starting with v0.11.0**, all admin communication now uses kind `24133` (`NDKKind.NostrConnect`) to be fully compliant with the [NIP-46 specification](https://github.com/nostr-protocol/nips/blob/master/46.md).
+
+### Why this change?
+
+1. **NIP-46 Compliance**: The NIP-46 spec only defines kind `24133` for all Nostr Connect communication. Kind `24134` was never standardized and doesn't exist in the spec.
+
+2. **Interoperability**: Using the standard kind ensures compatibility with other NIP-46 implementations and clients.
+
+3. **Simplification**: Having a single event kind for all NIP-46 communication (both standard signing requests and admin methods) simplifies the protocol.
+
+### Migration Guide
+
+If you have custom clients that communicate with the nsecbunkerd admin API:
+
+- **Update your client** to listen for responses on kind `24133` instead of `24134`
+- **No changes needed** for standard NIP-46 signing operations (these already used kind `24133`)
+- **Admin clients** (like [app.nsecbunker.com](https://app.nsecbunker.com)) will need to be updated to match this change
+
+## Authentication
+
+Only npubs listed in the `ADMIN_NPUBS` environment variable can access admin methods. All requests and responses use kind `24133` (NIP-46 NostrConnect).
+
+## Available Methods
+
+### Key Management
+
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `get_keys` | none | List all keys with their status (locked/unlocked) |
+| `get_key` | `keyName` | Get details about a specific key |
+| `create_new_key` | `keyName`, `passphrase`, `[nsec]` | Create a new key or import existing nsec |
+| `unlock_key` | `keyName`, `passphrase` | Unlock an encrypted key |
+| `delete_key` | `keyName` | Soft-delete a key and its tokens |
+| `rotate_key` | `oldKeyName`, `newKeyName`, `passphrase` | Create new key and migrate permissions |
+
+### Policy Management
+
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `get_policies` | none | List all policies with their rules |
+| `get_policy` | `policyId` | Get details about a specific policy |
+| `create_new_policy` | `policyJson` | Create a new policy with rules |
+| `delete_policy` | `policyId` | Soft-delete a policy |
+
+**Policy JSON Format:**
+```json
+{
+  "name": "signing-policy",
+  "expires_at": "2024-12-31T23:59:59Z",
+  "rules": [
+    { "method": "sign_event", "kind": 1, "use_count": 100 },
+    { "method": "sign_event", "kind": 7 }
+  ]
+}
+```
+
+### Permission Management
+
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `get_key_users` | `keyName` | List all users with access to a key |
+| `grant_permission` | `keyName`, `userPubkey`, `policyId`, `[description]` | Grant user access to a key with a policy |
+| `revoke_permission` | `keyName`, `userPubkey` | Revoke user's access to a key |
+| `get_permissions` | `keyName`, `userPubkey` | Get user's permissions on a key |
+| `rename_key_user` | `userPubkey`, `description` | Update a user's description |
+| `revoke_user` | `keyUserId` | Revoke user by ID |
+
+### Token Management
+
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `get_key_tokens` | `keyName` | List all tokens for a key |
+| `get_token` | `tokenId` | Get details about a specific token |
+| `create_new_token` | `keyName`, `clientName`, `policyId`, `[durationInHours]` | Create an access token |
+| `revoke_token` | `tokenId` | Revoke (soft-delete) a token |
+| `validate_token` | `tokenString` | Check if a token is valid |
+
+### Utility
+
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `ping` | none | Health check - returns "ok" |
+| `create_account` | `[username]`, `[domain]`, `[email]` | Create a new user account (OAuth flow) |
+
+## Response Format
+
+All responses follow NIP-46 format:
+```json
+{
+  "id": "<request_id>",
+  "result": "<json_stringified_result>",
+  "error": "<optional_error_string>"
+}
+```
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+```
+
 # Authors
 
 * [pablof7z](nostr:npub1l2vyh47mk2p0qlsku7hg0vn29faehy9hy34ygaclpn66ukqp3afqutajft)

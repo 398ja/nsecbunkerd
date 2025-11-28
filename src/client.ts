@@ -100,7 +100,7 @@ function loadPrivateKey(): string | undefined {
     } else {
         // check if we have a @ so we try to get the npub from nip05
         if (remotePubkey.includes('@')) {
-            const u = await NDKUser.fromNip05(remotePubkey);
+            const u = await NDKUser.fromNip05(remotePubkey, ndk);
             if (!u) {
                 console.log(`Invalid nip05 ${remotePubkey}`);
                 process.exit(1);

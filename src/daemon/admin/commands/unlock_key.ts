@@ -1,4 +1,4 @@
-import { NDKRpcRequest } from "@nostr-dev-kit/ndk";
+import { NDKKind, NDKRpcRequest } from "@nostr-dev-kit/ndk";
 import AdminInterface from "../index.js";
 
 export default async function unlockKey(admin: AdminInterface, req: NDKRpcRequest) {
@@ -16,5 +16,5 @@ export default async function unlockKey(admin: AdminInterface, req: NDKRpcReques
         result = JSON.stringify({ success: false, error: e.message });
     }
 
-    return admin.rpc.sendResponse(req.id, req.pubkey, result, 24134);
+    return admin.rpc.sendResponse(req.id, req.pubkey, result, NDKKind.NostrConnect);
 }

@@ -1,4 +1,4 @@
-import { NDKRpcRequest } from "@nostr-dev-kit/ndk";
+import { NDKKind, NDKRpcRequest } from "@nostr-dev-kit/ndk";
 import AdminInterface from "../index.js";
 import prisma from "../../../db.js";
 
@@ -15,7 +15,7 @@ export default async function createNewToken(admin: AdminInterface, req: NDKRpcR
 
     const token = [...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
     const data: any = {
-        keyName, clientName, policyId,
+        keyName, clientName, policyId: parseInt(policyId),
         createdBy: req.pubkey,
         token
     };
@@ -26,5 +26,5 @@ export default async function createNewToken(admin: AdminInterface, req: NDKRpcR
     if (!tokenRecord) throw new Error("Token not created");
 
     const result = JSON.stringify(["ok"]);
-    return admin.rpc.sendResponse(req.id, req.pubkey, result, 24134);
+    return admin.rpc.sendResponse(req.id, req.pubkey, result, NDKKind.NostrConnect);
 }

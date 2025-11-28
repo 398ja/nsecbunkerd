@@ -9,3 +9,5 @@ config
 .env
 .turbo
 prisma
+/.claude/
+/.idea/
